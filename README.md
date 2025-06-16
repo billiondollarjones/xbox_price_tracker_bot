@@ -46,10 +46,10 @@ The script generates a `price_log.csv` file like this:
 git clone https://github.com/billiondollarjones/xbox-price-tracker.git
 cd xbox-price-tracker
 
-Install Dependencies
+### 2. Install Dependencies
 pip install selenium webdriver-manager pandas
 
-Run the Script
+### 3. Run the Script
 python main.py
 
 ## A new entry will be added to price_log.csv every time you run it.
