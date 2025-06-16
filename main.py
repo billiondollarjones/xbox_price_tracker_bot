@@ -7,41 +7,43 @@ import datetime
 import os
 import time
 
-# Target Product Info
+# --- CONFIG ---
 url = "https://www.walmart.com/ip/443574645?sid=a049bd64-95cb-49c4-a1e5-6a50e961243a"
 product_name = "Xbox Series S 512 GB Console"
 
-# Launch Browser
+# --- SETUP DRIVER ---
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 driver.get(url)
-time.sleep(3)
+time.sleep(3) # Wait for page to load
 
-# Scrape Product Title (fallback in case of DOM change)
+# --- GET TITLE ---
 try:
-    title = driver.find_element(By.CSS_SELECTOR, "h1").text
+title = driver.find_element(By.CSS_SELECTOR, "h1").text
 except:
-    title = product_name
+title = product_name # fallback
 
-# Scrape Price
+# --- GET PRICE (Updated Selector) ---
 try:
-    price_element = driver.find_element(By.CSS_SELECTOR, "span[class*='price-characteristic']")
-    price = price_element.text
+price_whole = driver.find_element(By.CSS_SELECTOR, "span.price-characteristic").get_attribute("content")
+price_cents = driver.find_element(By.CSS_SELECTOR, "span.price-mantissa").get_attribute("content")
+price = f"${price_whole}.{price_cents}"
 except:
-    price = "N/A"
+price = "N/A"
 
-# Timestamp
+# --- TIMESTAMP ---
 date_checked = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+# --- CLOSE DRIVER ---
 driver.quit()
 
-# Save to CSV
+# --- LOG TO CSV ---
 log_file = "price_log.csv"
 data = {"Date": [date_checked], "Product": [title], "Price": [price]}
-
 df = pd.DataFrame(data)
 
 if not os.path.exists(log_file):
-    df.to_csv(log_file, index=False)
+df.to_csv(log_file, index=False)
 else:
-    df.to_csv(log_file, mode='a', header=False, index=False)
+df.to_csv(log_file, mode='a', header=False, index=False)
 
 print(f"[✔] Logged: {title} | Price: {price} | Time: {date_checked}")
